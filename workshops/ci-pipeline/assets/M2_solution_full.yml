@@ -1,0 +1,52 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
+  solutionFile: 'EStore.sln'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    version: '5.0.x'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(solutionFile)'
+    arguments: '--configuration $(buildConfiguration)'
+
+# Filter by test display name (UnitTests), 
+# Display name includes the namespace, class and method names
+
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'test'
+#     projects: '**/*Tests/*.csproj'
+#     arguments: '--configuration $(buildConfiguration) --filter DisplayName~UnitTests'
+
+# Filter by trait (name: Category), 
+# Each trait has key-value pair, we can define different nmaes, in this case we have used "Category" for test grouping
+
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'test'
+#     projects: '**/*Tests/*.csproj'
+#     arguments: '--configuration $(buildConfiguration) --filter Category=Integration'
+
+# Filter by trait (name: Build), 
+# Each trait has key-value pair, we can define different nmaes, in this case we have used "Build" for test grouping and 
+# used an assebly trait to set it up on all of the tests
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --filter Build=CI'
